@@ -26,3 +26,16 @@ minikube image ls
 kubectl run django --image=django_app --image-pull-policy=Never --env="SECRET_KEY=<SECRET_KEY>"
 kubectl exec django -ti -- python manage.py shell
 ```
+
+6. Запустите базу данных снаружи кластера
+```sh
+kubectl run django --image=django_app --image-pull-policy=Never --env="SECRET_KEY=<SECRET_KEY>" --env="DATABASE_URL=postgres://test_k8s:OwOtBep9Frut@<HOST_ADDRESS>:5432/test_k8s"
+kubectl exec django -ti -- python manage.py migrate
+```
+
+```sh
+kubectl exec django -ti -- python manage.py shell
+>>> from django.contrib.auth.models import User
+>>> User.objects.all()
+<QuerySet [<User: root>]>
+```
