@@ -29,7 +29,7 @@ kubectl exec django -ti -- python manage.py shell
 
 6. Запустите базу данных снаружи кластера
 ```sh
-kubectl run django --image=django_app --image-pull-policy=Never --env="SECRET_KEY=<SECRET_KEY>" --env="DATABASE_URL=postgres://test_k8s:OwOtBep9Frut@<HOST_ADDRESS>:5432/test_k8s"
+kubectl run django --image=django_app --image-pull-policy=Never --env="SECRET_KEY=<SECRET_KEY>" --env="DATABASE_URL=postgres://test_k8s:OwOtBep9Frut@<HOST_ADDRESS>:5432/test_k8s"  # set your database `HOST_ADDRESS`
 kubectl exec django -ti -- python manage.py migrate
 ```
 
@@ -39,3 +39,9 @@ kubectl exec django -ti -- python manage.py shell
 >>> User.objects.all()
 <QuerySet [<User: root>]>
 ```
+
+7. Запустите сайт Django
+```sh
+kubectl port-forward pod/django 8000:80
+```
+[http://127.0.0.1:8080/admin/](http://127.0.0.1:8080/admin/)
