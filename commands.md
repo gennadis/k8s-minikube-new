@@ -12,3 +12,9 @@ docker compose up -d --build
 brew install minikube
 kubectl cluster-info
 ```
+
+4. Запустите в кластере веб-сервер
+```sh
+kubectl run nginx --image=nginx:1.23.0-alpine --port=80
+kubectl port-forward pod/nginx 8000:80
+```
