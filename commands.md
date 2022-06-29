@@ -7,3 +7,8 @@ docker compose up -d --build
 2. Переключите сайт в production-режим  
 `DEBUG: ${WEB_DEBUG-FALSE}`
 
+3. Поднимите кластер Minikube
+```
+brew install minikube
+kubectl cluster-info
+```
