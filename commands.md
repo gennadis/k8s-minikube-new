@@ -45,3 +45,9 @@ kubectl exec django -ti -- python manage.py shell
 kubectl port-forward pod/django 8000:80
 ```
 [http://127.0.0.1:8080/admin/](http://127.0.0.1:8080/admin/)
+
+8. Опубликуйте сайт
+```sh
+kubectl create deployment django-deployment --image=django_app
+kubectl expose deployment django-deployment --type=NodePort --port=80
+```
