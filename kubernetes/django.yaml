@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+  labels:
+    app: django
+spec:
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels: 
+        app: django
+    spec:
+      containers:
+        - name: django
+          image: django_app:latest
+          imagePullPolicy: Never
+          env:
+            - name: SECRET_KEY
+              value: "<SECRET_KEY>"
+            - name: DATABASE_URL
+              value: "postgres://test_k8s:OwOtBep9Frut@<HOST_ADDRESS>:5432/test_k8s"
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  type: NodePort
+  selector:
+    app: django
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 80

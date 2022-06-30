@@ -51,3 +51,9 @@ kubectl port-forward pod/django 8000:80
 kubectl create deployment django-deployment --image=django_app
 kubectl expose deployment django-deployment --type=NodePort --port=80
 ```
+
+10. Настройте Deployment
+```sh
+kubectl apply -f kubernetes/django.yaml
+minikube service django-service --url
+```
