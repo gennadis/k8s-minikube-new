@@ -17,11 +17,9 @@ spec:
         - name: django
           image: django_app:latest
           imagePullPolicy: Never
-          env:
-            - name: SECRET_KEY
-              value: "<SECRET_KEY>"
-            - name: DATABASE_URL
-              value: "postgres://test_k8s:OwOtBep9Frut@<HOST_ADDRESS>:5432/test_k8s"
+          envFrom:
+            - configMapRef:
+                name: django-config
           ports:
             - containerPort: 80
 

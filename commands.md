@@ -57,3 +57,11 @@ kubectl expose deployment django-deployment --type=NodePort --port=80
 kubectl apply -f kubernetes/django.yaml
 minikube service django-service --url
 ```
+
+11. Вынесите переменные окружения из конфигурационных файлов
+```sh
+mv ./kubernetes/config_map_example.yaml ./kubernetes/config_map.yaml
+kubectl apply -f kubernetes/config_map.yaml
+kubectl rollout restart deployment django-deployment
+minikube service django-service --url
+```
