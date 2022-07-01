@@ -65,3 +65,10 @@ kubectl apply -f kubernetes/config_map.yaml
 kubectl rollout restart deployment django-deployment
 minikube service django-service --url
 ```
+12. Настройте Ingress
+```sh
+minikube addons enable ingress
+kubectl apply -f kubernetes/django.yaml
+kubectl get ingress
+minikube tunnel
+```
