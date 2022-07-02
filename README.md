@@ -45,3 +45,99 @@ kubectl get ingress
 kubectl get all
 minikube tunnel
 ```
+
+
+# Деплой в Minikube
+
+1. Install Minikube and kubectl
+```sh
+brew install minikube
+kubectl cluster-info
+>>> Kubernetes control plane is running at https://127.0.0.1:58185
+>>> CoreDNS is running at https://127.0.0.1:58185/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+>>> To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+```
+
+2. Build django image
+```sh
+minikube image build ./backend_main_django/ --image-pull-policy=Never -t django_app
+minikube image ls
+```
+
+3. Разверните PostgreSQL в кластере
+```sh
+brew install helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install postgres bitnami/postgresql
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+env
+kubectl run postgres-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:14.4.0-debian-11-r4 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgres-postgresql -U postgres -d postgres -p 5432
+```
+
+4. Create user, table in PG
+```sh
+postgres=#
+>>> CREATE DATABASE postgres_db;
+>>> CREATE USER gennadis WITH ENCRYPTED PASSWORD 'password';
+>>> GRANT ALL PRIVILEGES ON DATABASE postgres TO gennadis;
+```
+
+```sh
+kubectl get pods
+kubectl exec django-deployment-6858fdb4c7-zq4mv -- python manage.py migrate
+kubectl exec -it django-deployment-6858fdb4c7-zq4mv -- python manage.py createsuperuser
+minikube tunnel
+```
+
+
+
+3. Create `ConfigMap`
+```sh
+cp kubernetes/config_map_example.yaml kubernetes/config_map.yaml
+nano kubernetes/config_map.yaml
+```
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+data:
+  SECRET_KEY: "<SECRET_KEY>"
+  DATABASE_URL: 'postgres://POSTGRES_USER:POSTGRES_PASSWORD@HOST_ADDRESS:5432/POSTGRES_DB'
+  DEBUG: "True"
+  ALLOWED_HOSTS: "127.0.0.1,starburger.test"
+```
+
+```sh
+kubectl apply -f kubernetes/config_map.yaml
+kubectl rollout restart deployment django-deployment
+```
+
+
+4. Create `ingress`
+```sh
+minikube addons enable ingress
+kubectl apply -f kubernetes/django.yaml
+kubectl get ingress
+```
+
+5. Open site in browser [http://127.0.0.1](http://127.0.0.1)
+```sh
+minikube tunnel
+```
+
+6. Enable automatic clearsessions
+```sh
+kubectl apply -f kubernetes/clearsessions.yaml
+kubectl create job --from=cronjob/django-clearsessions django-clearsessions-job
+```
+
+7. Apply django migrations
+```sh
+kubectl apply -f kubernetes/migrate.yaml
+kubectl get pods
+kubectl delete job django-migrate-job
+```
+
