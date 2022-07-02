@@ -85,3 +85,28 @@ kubectl apply -f kubernetes/migrate.yaml
 kubectl get pods
 kubectl logs django-migrate-xsgk7
 ```
+
+15. Разверните PostgreSQL в кластере
+```sh
+brew install helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install postgres bitnami/postgresql
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgres-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+env
+kubectl run postgres-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:14.4.0-debian-11-r4 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgres-postgresql -U postgres -d postgres -p 5432
+```
+
+```sh
+postgres=#
+>>> CREATE DATABASE postgres_db;
+>>> CREATE USER gennadis WITH ENCRYPTED PASSWORD 'password';
+>>> GRANT ALL PRIVILEGES ON DATABASE postgres TO gennadis;
+```
+
+```sh
+kubectl get pods
+kubectl exec django-deployment-6858fdb4c7-zq4mv -- python manage.py migrate
+kubectl exec -it django-deployment-6858fdb4c7-zq4mv -- python manage.py createsuperuser
+minikube tunnel
+```
