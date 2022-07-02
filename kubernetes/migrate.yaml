@@ -7,7 +7,6 @@ metadata:
 spec:
   template:
     spec:
-      ttlSecondsAfterFinished: 100
       containers:
       - name: django-migrate
         image: django_app:latest
