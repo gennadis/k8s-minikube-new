@@ -78,3 +78,10 @@ minikube tunnel
 kubectl apply -f kubernetes/clearsessions.yaml
 kubectl create job --from=cronjob/django-clearsessions django-clearsessions-job
 ```
+
+14. Упакуйте команду migrate
+```sh
+kubectl apply -f kubernetes/migrate.yaml
+kubectl get pods
+kubectl logs django-migrate-xsgk7
+```
