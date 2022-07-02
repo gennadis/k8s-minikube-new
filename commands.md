@@ -72,3 +72,9 @@ kubectl apply -f kubernetes/django.yaml
 kubectl get ingress
 minikube tunnel
 ```
+
+13. Настройте регулярное удаление сессий
+```sh
+kubectl apply -f kubernetes/clearsessions.yaml
+kubectl create job --from=cronjob/django-clearsessions django-clearsessions-job
+```
