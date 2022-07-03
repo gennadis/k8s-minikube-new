@@ -49,7 +49,7 @@ minikube tunnel
 
 # Деплой в Minikube
 
-1. Install Minikube and kubectl
+1. Установите `minikube`
 ```sh
 brew install minikube
 kubectl cluster-info
@@ -58,7 +58,7 @@ kubectl cluster-info
 >>> To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
-2. Build django image
+2. Соберите образ с приложением `django`
 ```sh
 minikube image build ./backend_main_django/ --image-pull-policy=Never -t django_app
 minikube image ls
@@ -75,7 +75,7 @@ kubectl run postgres-postgresql-client --rm --tty -i --restart='Never' --namespa
       --command -- psql --host postgres-postgresql -U postgres -d postgres -p 5432
 ```
 
-4. Create user, table in PG
+4. Создайте БД и пользователя в PostgreSQL
 ```sh
 postgres=#
 >>> CREATE DATABASE postgres_db;
@@ -83,6 +83,7 @@ postgres=#
 >>> GRANT ALL PRIVILEGES ON DATABASE postgres TO gennadis;
 ```
 
+5. Примените миграции и создайте суперпользователя
 ```sh
 kubectl get pods
 kubectl exec django-deployment-6858fdb4c7-zq4mv -- python manage.py migrate
@@ -90,9 +91,7 @@ kubectl exec -it django-deployment-6858fdb4c7-zq4mv -- python manage.py createsu
 minikube tunnel
 ```
 
-
-
-3. Create `ConfigMap`
+6. Создайте `ConfigMap` по образцу
 ```sh
 cp kubernetes/config_map_example.yaml kubernetes/config_map.yaml
 nano kubernetes/config_map.yaml
@@ -116,28 +115,27 @@ kubectl rollout restart deployment django-deployment
 ```
 
 
-4. Create `ingress`
+7. Активируйте `ingress`
 ```sh
 minikube addons enable ingress
 kubectl apply -f kubernetes/django.yaml
 kubectl get ingress
 ```
 
-5. Open site in browser [http://127.0.0.1](http://127.0.0.1)
+8. Откройте сайт в браузере [http://127.0.0.1](http://127.0.0.1)
 ```sh
 minikube tunnel
 ```
 
-6. Enable automatic clearsessions
+9. Активируйте автоматический `clearsessions`
 ```sh
 kubectl apply -f kubernetes/clearsessions.yaml
 kubectl create job --from=cronjob/django-clearsessions django-clearsessions-job
 ```
 
-7. Apply django migrations
+10. Примените миграции
 ```sh
 kubectl apply -f kubernetes/migrate.yaml
 kubectl get pods
 kubectl delete job django-migrate-job
 ```
-
